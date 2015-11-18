@@ -1910,6 +1910,7 @@ inline_char_handler:
 
 <ST_IN_SCRIPTING>"/*"|"/**"{WHITESPACE} {
 	int doc_com;
+	int open_count = 1;
 
 	if (yyleng > 2) {
 		doc_com = 1;
@@ -1919,8 +1920,17 @@ inline_char_handler:
 	}
 
 	while (YYCURSOR < YYLIMIT) {
+		if (*YYCURSOR++ == '/' && *YYCURSOR == '*') {
+			open_count++;
+		} else {
+			*YYCURSOR--;
+		}
+
 		if (*YYCURSOR++ == '*' && *YYCURSOR == '/') {
-			break;
+			open_count--;
+			if (open_count == 0) {
+				break;
+			}
 		}
 	}
 
